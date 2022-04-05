@@ -1,0 +1,73 @@
+/*body 
+{
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+*/
+.name
+{
+	font-size: 2em;
+	font-family: "Roboto", sans-serif;
+	padding: 0px 0px 0px 3px;
+	font-weight: bold;
+}
+.red
+{
+	color : red;
+}
+.green
+{
+	color : green;
+}
+.blue
+{
+	color : blue;
+}
+.orange
+{
+	color : orange;
+}
+.yellow
+{
+		color : yellow;
+}
+.date
+{
+	font-size: 1em;
+	/*font-family: "Roboto", sans-serif;*/
+	color: #d4c6c5;
+	padding: 0px 0px 0px 5px;
+}
+.header
+{
+	padding: 0px 0px 3px 0px;
+}
+.message
+{
+	/*font-family: "Roboto", sans-serif;*/
+	background-color: grey;
+	max-width: 25em;
+}
+.message:hover
+{
+	background-color: #353839;
+}
+body
+{
+	background-color: grey;
+}
+.text
+{
+	font-size: 1.5em;
+	color: white;
+	padding: 0px 0px 0px 3px;
+
+}
