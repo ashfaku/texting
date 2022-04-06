@@ -19,6 +19,14 @@ code {
 	padding: 0px 0px 0px 3px;
 	font-weight: bold;
 }
+.list
+{ 
+	position: absolute;
+	right: 20em;
+	width: 40em;
+	border: 3px solid #73AD21;
+	padding: 10px;
+}
 .red
 {
 	color : red;
@@ -37,12 +45,12 @@ code {
 }
 .yellow
 {
-		color : yellow;
+	color : yellow;
 }
 .date
 {
 	font-size: 1em;
-	/*font-family: "Roboto", sans-serif;*/
+	font-family: "Roboto", sans-serif;
 	color: #d4c6c5;
 	padding: 0px 0px 0px 5px;
 }
@@ -52,9 +60,9 @@ code {
 }
 .message
 {
-	/*font-family: "Roboto", sans-serif;*/
+	font-family: "Roboto", sans-serif;
 	background-color: grey;
-	max-width: 25em;
+	max-width: 50em;
 }
 .message:hover
 {
