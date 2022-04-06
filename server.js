@@ -28,6 +28,21 @@ list = [
 		name : 'Zhipeng',
 		msg : 'bruh',
 		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
 	}
 ];
 app.get('/express_backend', (req, res) => { //Line 9
