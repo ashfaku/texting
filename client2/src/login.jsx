@@ -22,6 +22,7 @@ class Login extends React.Component
 	{
 		return <div>
 		        <img src={logo} className="App-logo" alt="logo" />
+				<div id = "title">Nuclei</div>
 				<div id = "login"> 
 					<input type = "text" id = "u" placeholder = "Username..."></input>
 					<input type = "text" id = "p" placeholder = "Password..."></input>
