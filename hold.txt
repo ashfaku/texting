@@ -1,0 +1,37 @@
+list = [
+	{ 
+		name : 'Ashfak',
+		msg : 'Everything is doomed',
+		color : 'red'
+	},
+	{
+		name : 'Tiffanie',
+		msg : 'What does that mean',
+		color : 'blue'
+	},
+	{
+		name : 'Victor',
+		msg : 'hei',
+		color : 'green'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	},
+	{
+		name : 'Zhipeng',
+		msg : 'bruh',
+		color : 'yellow'
+	}
+];

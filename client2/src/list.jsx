@@ -20,7 +20,7 @@ class List extends React.Component
 	callBackendAPI = async () => 
 	{
 	//	const response = await fetch('http://puppygifs.tumblr.com/api/read/json/');
-		const response = await fetch('http://localhost:5000/express_backend/');
+		const response = await fetch('https://nuclei-texting.herokuapp.com/express_backend/');
 		const body = await response.json();
 		if (response.status !== 200) 
 		{

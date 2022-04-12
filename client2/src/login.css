@@ -6,11 +6,12 @@ body
 }
 #login
 {
+	background-color: #FFFDD0;
 	position: relative;
-	left: 40%;
+	left: 30%;
 	top: 2em;
-	width: 20%;
-	height: 5em;
+	width: 40%;
+	height: 10em;
 }
 #title
 {
@@ -42,9 +43,28 @@ body
 }
 .App-logo
 {
-	max-width: 20%;
+	max-width: 10%;
 	position: relative;
-	left: 40%;
+	left: 45%;
+	animation: rot 1s linear infinite;
+	-webkit-animation-fill-mode: forwards;
+	-moz-animation-fill-mode: forwards; 
+	-ms-animation-fill-mode: forwards;
+	-o-animation-fill-mode: forwards; 
+	animation-fill-mode: forwards;
+}
+@keyframes rot
+{
+	0%
+	{
+		transform: rotate(0deg); 
+		transform: rotateY(0deg);
+	} 
+	100%
+	{
+		transform: rotate(360deg);
+		transform: rotateY(360deg);
+	}
 }
 button
 {
@@ -54,6 +74,7 @@ button
 	width: 20%;
 	height: 3.5em;
 	border-radius: 5px;
+	background-color: yellow;
 }
 #loginButton
 {
@@ -68,18 +89,17 @@ input
 	float: left;
 	clear: left;
 	position: relative;
-	left: 0%;
-	width: 97.5%;
-	height: 42%;
+	left: 17.5%;
+	width: 65%;
+	height: 20%;
+	border-radius: 5px;
+	background-color: #696969;
 }
 #u
 {
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
+	top: 15%;
 }
 #p
 {
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	
+	top: 35%;
 }

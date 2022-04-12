@@ -1,7 +1,6 @@
 import React from 'react';
 import './login.css';
-import logo from './logo.svg';
-
+import logo from './logo1.svg';
 class Login extends React.Component
 {
 	login()
