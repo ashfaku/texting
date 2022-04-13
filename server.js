@@ -1,13 +1,13 @@
-const express = require('express'); //Line 1
+const express = require('express'); 
 const cors = require('cors');
-const app = express(); //Line 2
+const app = express();
 const bodyParser = require('body-parser')
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
-const uri = "yur mom";
+const uri = "";
 const client = new MongoClient(uri);
 const dbName = "Cluster0";                      
 async function connect()
@@ -30,26 +30,28 @@ async function run(doc)
 	{
          const db = client.db(dbName);
          const col = db.collection("accounts");
-		 const myDoc = await col.find();
-		 myDoc.forEach(e => 
+		 const myDoc = await col.findOne({"username" : doc.username});
+		 if (myDoc === null)
 		 {
-			if (e.username === doc.username)
+			const account = 
 			{
-				app.get('/express_backend', (req, res) => 
-				{ 
-					res.send({"accountCreation" : "Account already here"});
-				});
-				return; // we found a dupe account 
-			}
-		 });
-		 const account = 
-		 {
-			 "username" : doc.username,
-			 "password" : doc.password,
-			 "email" : doc.email,
-			 "friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
-		 };
-		 await col.insertOne(account);	 
+				"username" : doc.username,
+				"password" : doc.password,
+				"email" : doc.email,
+				"friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
+			};
+			let p = await col.insertOne(account);	 
+			app.get('/express_backend', function (req, res) {
+				res.send({"account" : "Worked"});
+			});
+
+		 }
+		 else
+		 { 
+			app.get('/express_backend', function (req, res) {
+				res.send({"account" : "Did not work"});
+			});
+		 }
 	}	
 	catch (err) 
 	{
@@ -66,7 +68,6 @@ app.post('/express_backend', (req, res) =>
 	run(userInfo).catch(console.dir);
 	res.send(req.body);
 })
-
-app.get('/express_backend', (req, res) => { //Line 9
-  res.send({"idk" : "poop"}); //Line 10
-}); //Line 11
+app.get('/express_backend', function (req, res) {
+	res.send({"account" : ""});
+});
