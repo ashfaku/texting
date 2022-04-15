@@ -1,5 +1,7 @@
 const express = require('express'); 
 const cors = require('cors');
+const ws = require('ws');
+
 const app = express();
 const bodyParser = require('body-parser')
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -7,7 +9,11 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
-const uri = "";
+
+const port = /*process.env.PORT ||*/ 5000;
+
+
+const uri = "mongodb+srv://ashfaku:Ashman123@cluster0.w7fyh.mongodb.net/Cluster0?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 const dbName = "Cluster0";                      
 async function connect()
@@ -22,17 +28,16 @@ async function connect()
 	}
 }
 connect();
-console.log("Connected correctly to server");    
-
+console.log("Connected to database");
 async function run(doc) 
 {
     try 
 	{
-         const db = client.db(dbName);
-         const col = db.collection("accounts");
-		 const myDoc = await col.findOne({"username" : doc.username});
-		 if (myDoc === null)
-		 {
+		const db = client.db(dbName);
+		const col = db.collection("accounts");
+		const myDoc = await col.findOne({"username" : doc.username});
+		if (myDoc === null)
+		{
 			const account = 
 			{
 				"username" : doc.username,
@@ -41,33 +46,37 @@ async function run(doc)
 				"friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
 			};
 			let p = await col.insertOne(account);	 
-			app.get('/express_backend', function (req, res) {
-				res.send({"account" : "Worked"});
-			});
-
-		 }
-		 else
-		 { 
-			app.get('/express_backend', function (req, res) {
-				res.send({"account" : "Did not work"});
-			});
-		 }
+			console.log("allowed");
+		}
+		else
+		{ 
+			console.log("Not allowed");
+		}
 	}	
 	catch (err) 
 	{
 		console.log(err.stack);
 	}
 }
-const port = process.env.PORT || 5000;
+// Set up a headless websocket server that prints any
+// events that come in.
+const wsServer = new ws.Server({ noServer: true });
+wsServer.on('connection', socket => {
+  socket.on('message', message => { 
+	message = JSON.parse(message);
+	var email = message.email;
+	var username = message.username;
+	var password = message.password;
+	run(message).catch(console.dir);
+  });
+});
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
-app.post('/express_backend', (req, res) => 
-{
-	let userInfo = req.body;
-//	console.log(userInfo);
-	run(userInfo).catch(console.dir);
-	res.send(req.body);
-})
-app.get('/express_backend', function (req, res) {
-	res.send({"account" : ""});
+// `server` is a vanilla Node.js HTTP server, so use
+// the same ws upgrade process described here:
+// https://www.npmjs.com/package/ws#multiple-servers-sharing-a-single-https-server
+const server = app.listen(port);
+server.on('upgrade', (request, socket, head) => {
+  wsServer.handleUpgrade(request, socket, head, socket => {
+    wsServer.emit('connection', socket, request);
+  });
 });
