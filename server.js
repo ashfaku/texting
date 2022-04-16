@@ -12,7 +12,6 @@ app.use(bodyParser.urlencoded({extended: false}))
 
 const port = /*process.env.PORT ||*/ 5000;
 
-
 const uri = "mongodb+srv://ashfaku:Ashman123@cluster0.w7fyh.mongodb.net/Cluster0?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 const dbName = "Cluster0";                      
@@ -35,7 +34,8 @@ async function run(doc)
 	{
 		const db = client.db(dbName);
 		const col = db.collection("accounts");
-		const myDoc = await col.findOne({"username" : doc.username});
+		var myDoc = await col.findOne({"username" : doc.username});
+		var v = "Not allowed";
 		if (myDoc === null)
 		{
 			const account = 
@@ -45,13 +45,14 @@ async function run(doc)
 				"email" : doc.email,
 				"friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
 			};
-			let p = await col.insertOne(account);	 
-			console.log("allowed");
+			await col.insertOne(account);	 
+			myDoc = account;
+			v = "Allowed";
 		}
-		else
-		{ 
-			console.log("Not allowed");
-		}
+		return {
+			"status" : v,
+			"account" : myDoc
+		};
 	}	
 	catch (err) 
 	{
@@ -62,13 +63,33 @@ async function run(doc)
 // events that come in.
 const wsServer = new ws.Server({ noServer: true });
 wsServer.on('connection', socket => {
-  socket.on('message', message => { 
+  socket.on('message', async message => { 
 	message = JSON.parse(message);
-	var email = message.email;
-	var username = message.username;
-	var password = message.password;
-	run(message).catch(console.dir);
-  });
+	if (message.type == "texting")
+	{
+		try 
+		{	
+			const db = client.db(dbName);
+			const col = db.collection("texting");
+			var myDoc = await col.find();
+			myDoc.forEach((e) => console.log(e));
+			socket.send(JSON.stringify(myDoc));
+		}	
+		catch (err) 
+		{
+			console.log(err.stack);
+		}
+	}
+	else if (message.type = "create")
+	{
+		var email = message.email;
+		var username = message.username;
+		var password = message.password;
+		var status = await run(message).catch(console.dir);
+		//console.log(status);
+		socket.send(JSON.stringify(status));
+	}
+ });
 });
 
 // `server` is a vanilla Node.js HTTP server, so use
