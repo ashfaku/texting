@@ -71,7 +71,7 @@ wsServer.on('connection', socket => {
 		{	
 			const db = client.db(dbName);
 			const col = db.collection("texting");
-			var myDoc = await col.find();
+			var myDoc = await col.find().toArray();
 			myDoc.forEach((e) => console.log(e));
 			socket.send(JSON.stringify(myDoc));
 		}	
@@ -80,7 +80,30 @@ wsServer.on('connection', socket => {
 			console.log(err.stack);
 		}
 	}
-	else if (message.type = "create")
+	else if (message.type == "sendData")
+	{	
+		var data = {
+			msg: message.message,
+			date: message.date,
+			name: message.name,
+			color: message.color
+		}	
+		try 
+		{
+			const db = client.db(dbName);
+			const col = db.collection("texting");
+			await col.insertOne(data);
+			var myDoc = await col.find().toArray();
+			myDoc.forEach((e) => console.log(e));
+			socket.send(JSON.stringify(myDoc));
+		}	
+		catch (err) 
+		{
+			console.log(err.stack);
+		}
+		//console.log(status);
+	}
+	else if (message.type == "create")
 	{
 		var email = message.email;
 		var username = message.username;
