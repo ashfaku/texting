@@ -11,7 +11,8 @@
   "author": "",
   "license": "ISC",
   "engines": {
-    "node": "16.14.2"
+    "node": "v16.13.1", 
+	"npm": "8.1.2" 
   },
   "dependencies": {
     "axios": "^0.26.1",
