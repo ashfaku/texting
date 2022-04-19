@@ -38,12 +38,14 @@ async function run(doc)
 		var v = "Not allowed";
 		if (myDoc === null)
 		{
+			colors = [];
 			const account = 
 			{
 				"username" : doc.username,
 				"password" : doc.password,
 				"email" : doc.email,
 				"friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
+				
 			};
 			await col.insertOne(account);	 
 			myDoc = account;
@@ -72,6 +74,11 @@ wsServer.on('connection', socket => {
 			const db = client.db(dbName);
 			const col = db.collection("texting");
 			var myDoc = await col.find().toArray();
+			const changeStream = col.watch();
+			changeStream.on('change', async (next) => {
+				var myDoc = await col.find().toArray();
+				socket.send(JSON.stringify(myDoc));
+			});
 			myDoc.forEach((e) => console.log(e));
 			socket.send(JSON.stringify(myDoc));
 		}	
@@ -95,7 +102,6 @@ wsServer.on('connection', socket => {
 			await col.insertOne(data);
 			var myDoc = await col.find().toArray();
 			myDoc.forEach((e) => console.log(e));
-			socket.send(JSON.stringify(myDoc));
 		}	
 		catch (err) 
 		{
