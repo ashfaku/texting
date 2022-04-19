@@ -10,8 +10,10 @@ app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 
+const INDEX = '/index.html';
 const port = process.env.PORT || 5000;
 
+const server = app.listen(port, () => console.log(`Listening on ${port}`));
 const uri = "mongodb+srv://ashfaku:Ashman123@cluster0.w7fyh.mongodb.net/Cluster0?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 const dbName = "Cluster0";                      
@@ -63,7 +65,7 @@ async function run(doc)
 }
 // Set up a headless websocket server that prints any
 // events that come in.
-const wsServer = new ws.Server({ noServer: true });
+const wsServer = new ws.Server({server});
 wsServer.on('connection', socket => {
   socket.on('message', async message => { 
 	message = JSON.parse(message);
@@ -124,7 +126,6 @@ wsServer.on('connection', socket => {
 // `server` is a vanilla Node.js HTTP server, so use
 // the same ws upgrade process described here:
 // https://www.npmjs.com/package/ws#multiple-servers-sharing-a-single-https-server
-const server = app.listen(port);
 server.on('upgrade', (request, socket, head) => {
   wsServer.handleUpgrade(request, socket, head, socket => {
     wsServer.emit('connection', socket, request);
