@@ -121,7 +121,7 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 		const changeStream = data.db("Cluster0").collection("texting").watch();
 		changeStream.on('change', async (next) => {
 			var myDoc = await data.db("Cluster0").collection("texting").find().toArray();
-			loggedIn.forEach((e) => io.to(e).emit('update',  myDoc);
+			loggedIn.forEach((e) => io.to(e).emit('update',  myDoc));
 		});
 
 	});
