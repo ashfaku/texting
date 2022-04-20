@@ -5,6 +5,9 @@ var http = require('http').createServer(app);
 const PORT = process.env.PORT || 5000;
 var io = require('socket.io')(http);
 
+var creating = [];
+var loggedIn = [];
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     next();
@@ -98,22 +101,27 @@ async function insertData(message)
 	//console.log(status);
 }
 http.listen(PORT, () => {
-    console.log(`listening on *:${PORT}`);
+    console.log(`listening on ${PORT}`);
 });
 
 io.on('connection', (socket) => { // socket object may be used to send specific messages to the new connected data
     socket.emit('connection', "Client connected");	
+	socket.on('creating', (m) => {
+		creating.push(m);
+		console.log(creating);
+	});
 	socket.on('createAccount', async (msg) => {
 		console.log(msg);
 		var s = await run(msg).catch(console.dir);
-		io.emit('status', s);
+		io.to(msg.clientID).emit('status', s);
 	});
-	socket.on('initialList', async (msg) => { 
-		io.emit('initialData', await getInitialData());
+	socket.on('initialList', async (msg) => {
+		loggedIn.push(msg.clientID);
+		io.to(msg.clientID).emit('initialData', await getInitialData());
 		const changeStream = data.db("Cluster0").collection("texting").watch();
 		changeStream.on('change', async (next) => {
 			var myDoc = await data.db("Cluster0").collection("texting").find().toArray();
-			io.emit('update',  myDoc);
+			loggedIn.forEach((e) => io.to(e).emit('update',  myDoc);
 		});
 
 	});
