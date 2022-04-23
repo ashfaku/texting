@@ -46,7 +46,7 @@ async function run(doc)
 				"username" : doc.username,
 				"password" : doc.password,
 				"email" : doc.email,
-				"friendList" : ['Wilson', 'Tofu', 'Vicky'] // sample list for testing
+				"friendList" : [] // sample list for testing
 				
 			};
 			await col.insertOne(account);	 
@@ -110,6 +110,15 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 		creating.push(m);
 		console.log(creating);
 	});
+	socket.on('login', async (m) => {
+
+		const col = data.db(dbName).collection("accounts");
+		var myDoc = await col.findOne({
+			"username" : m.username, 
+			"password" : m.password
+		});
+		io.to(m.clientID).emit('login', myDoc);
+	});
 	socket.on('createAccount', async (msg) => {
 		console.log(msg);
 		var s = await run(msg).catch(console.dir);
@@ -123,11 +132,26 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 			var myDoc = await data.db("Cluster0").collection("texting").find().toArray();
 			loggedIn.forEach((e) => io.to(e).emit('update',  myDoc));
 		});
-
 	});
 	socket.on('sendData', async (msg) => {
 		console.log(msg);
 		// INPUT DATA
 		insertData(msg);
+	});
+	socket.on('friendRequest', async (msg) => {
+		const col = data.db(dbName).collection("accounts");
+		const account = await col.findOne({"username" : msg.username});
+		console.log(account);
+		if (account === null)
+		{
+			console.log("No account");
+			io.to(msg.clientID).emit('requestFound', "Not Found");
+		}
+		else
+		{
+			console.log("found");
+			// update friend list here 
+			io.to(msg.clientID).emit('requestFound', "Found");
+		}
 	});
 });
