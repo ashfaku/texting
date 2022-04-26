@@ -36,7 +36,7 @@ async function run(doc)
 	{
 		const db = data.db(dbName);
 		const col = db.collection("accounts");
-		var myDoc = await col.findOne({"username" : doc.username});
+		var myDoc = await col.findOne({username : doc.username});
 		var v = "Not allowed";
 		if (myDoc === null)
 		{
@@ -63,42 +63,56 @@ async function run(doc)
 		console.log(err.stack);
 	}
 }
-async function getInitialData()
+async function getInitialData(own, other)
 {
 	var myDoc;
 	try 
 	{	
 		const db = data.db(dbName);
 		const col = db.collection("texting");
-		myDoc = await col.find().toArray();
+		myDoc = await col.findOne({usernames: [own, other]}) || await col.find({usernames: [other, own]});
+	//	console.log(myDoc.dmList);
+		return myDoc.dmList;
 	}	
 	catch (err) 
 	{
 		console.log(err.stack);
 	}
-	return myDoc;
 }
-async function insertData(message)
+async function insertData(m)
 {
+	const db = data.db(dbName);
+	const col = db.collection("texting");
+	var filter = {usernames: [m.name, m.other]};
+	var myDoc = await col.findOne(filter);
+	if (myDoc === null)
+	{
+		filter = {usernames: [m.other, m.name]}
+		myDoc = await col.findOne(filter);
+	}
+	//await col.find({usernames: [m.other, m.name]});
 	var mg = {
-		msg: message.message,
-		date: message.date,
-		name: message.name,
-		color: message.color
+		msg: m.message,
+		date: m.date,
+		name: m.name,
+		color: m.color
 	}	
 	try 
 	{
-		const db = data.db("Cluster0");
-		const col = db.collection("texting");
-		await col.insertOne(mg);
-		var myDoc = await col.find().toArray();
-		myDoc.forEach((e) => console.log(e));
+		var tmp = myDoc.dmList;
+		tmp.push(mg);
+		var options = { upsert: false };
+		var updateDoc = {
+			$set: {
+				dmList: tmp
+			},
+		};
+		var result = await col.updateOne(filter, updateDoc, options);
 	}	
 	catch (err) 
 	{
 		console.log(err.stack);
 	}
-	//console.log(status);
 }
 http.listen(PORT, () => {
     console.log(`listening on ${PORT}`);
@@ -108,7 +122,7 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
     socket.emit('connection', "Client connected");	
 	socket.on('creating', (m) => {
 		creating.push(m);
-		console.log(creating);
+	//	console.log(creating);
 	});
 	socket.on('login', async (m) => {
 
@@ -120,21 +134,33 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 		io.to(m.clientID).emit('login', myDoc);
 	});
 	socket.on('createAccount', async (msg) => {
-		console.log(msg);
+	//	console.log(msg);
 		var s = await run(msg).catch(console.dir);
 		io.to(msg.clientID).emit('status', s);
 	});
 	socket.on('initialList', async (msg) => {
-		loggedIn.push(msg.clientID);
-		io.to(msg.clientID).emit('initialData', await getInitialData());
+		loggedIn.push({
+			id : msg.clientID,
+			name: msg.own
+		});
+		io.to(msg.clientID).emit('initialData', await getInitialData(msg.own, msg.username));
 		const changeStream = data.db("Cluster0").collection("texting").watch();
 		changeStream.on('change', async (next) => {
-			var myDoc = await data.db("Cluster0").collection("texting").find().toArray();
-			loggedIn.forEach((e) => io.to(e).emit('update',  myDoc));
+			//var myDoc = await data.db("Cluster0").collection("texting").find().toArray();
+			var c = next.updateDescription.updatedFields.dmList;
+			console.log(next);
+			//console.log(c);
+			// figure out hwo to identify which doc here with the username array
+			for (let i = 0; i < loggedIn.length; i++)
+			{
+			
+			}
+		
+		//	loggedIn.forEach((e) => io.to(e).emit('update',  myDoc));
 		});
 	});
 	socket.on('sendData', async (msg) => {
-		console.log(msg);
+	//	console.log(msg);
 		// INPUT DATA
 		insertData(msg);
 	});
@@ -144,12 +170,12 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 		var account = await col.findOne(filter);
 		if (account === null)
 		{
-			console.log("No account");
+	//		console.log("No account");
 			io.to(msg.clientID).emit('requestFound', "Not Found");
 		}
 		else
 		{
-			console.log("found");
+		//	console.log("found");
 			var tmp = account.friendList;
 			// check if it contains alrdy 
 			
@@ -180,6 +206,13 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 			};
 			result = await col.updateOne({username: msg.own}, updateDoc, options);
 			// make a doc for this pair of users HERE
+			const db = data.db("Cluster0");
+			const coll = db.collection("texting");
+			await coll.insertOne({
+				usernames: [msg.username, msg.own],
+				dmList: []
+			});
+
 			io.to(msg.clientID).emit('requestL', tmp);		
 			io.to(msg.clientID).emit('requestFound', "Found");
 		}
