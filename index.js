@@ -140,8 +140,8 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 	});
 	socket.on('friendRequest', async (msg) => {
 		const col = data.db(dbName).collection("accounts");
-		const account = await col.findOne({"username" : msg.username});
-		console.log(account);
+		var filter = {"username" : msg.username};
+		var account = await col.findOne(filter);
 		if (account === null)
 		{
 			console.log("No account");
@@ -150,7 +150,37 @@ io.on('connection', (socket) => { // socket object may be used to send specific 
 		else
 		{
 			console.log("found");
+			var tmp = account.friendList;
+			// check if it contains alrdy 
+			
+			if (tmp.includes(msg.own))
+			{
+				io.to(msg.clientID).emit('requestFound', "You're already a friend to this user");
+				return;
+			}
+			
+			tmp.push(msg.own);
 			// update friend list here 
+			var options = { upsert: false };
+			var updateDoc = {
+				$set: {
+					friendList: tmp
+				},
+			};
+			var result = await col.updateOne(filter, updateDoc, options);
+		
+			account = await col.findOne({username: msg.own});
+			tmp = account.friendList;
+			tmp.push(msg.username);
+			// update friend list here 
+			updateDoc = {
+				$set: {
+					friendList: tmp
+				},
+			};
+			result = await col.updateOne({username: msg.own}, updateDoc, options);
+			// make a doc for this pair of users HERE
+			io.to(msg.clientID).emit('requestL', tmp);		
 			io.to(msg.clientID).emit('requestFound', "Found");
 		}
 	});
