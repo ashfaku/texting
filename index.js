@@ -47,8 +47,17 @@ loggedIn.on('connection', (socket) => {
 	console.log("Logged in");
 	socket.on('dataReq', async (msg) => {
 		console.log(msg);
+		socket.data.username = msg.own;
+		//const sockets = Array.from(loggedIn.sockets).map(socket => socket[0]); 
+		const sockets = await loggedIn.fetchSockets();
+		sockets.forEach((e) => {
+			console.log(e.data.username);
+			console.log(e.id);
+		});
+		// HERE IT IS! THE LONG AWAITED FIND OF THE LIST OF CURRENTLY LOGGED IN USERS
+		
 		loggedIn.to(msg.clientID).emit('textDocs', await getInitialData(msg.own));	
-		await getInitialFriendList(msg.own);
+//		await getInitialFriendList(msg.own);
 		// here i have to get the friend list of msg.own from accounts collection
 	});
 });
